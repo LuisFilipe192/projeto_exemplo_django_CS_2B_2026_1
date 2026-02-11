@@ -1,0 +1,1 @@
+# projeto_exemplo_django_CS_2B_2026_1
