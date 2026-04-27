@@ -1,52 +1,794 @@
+/* ============================================================
+   STYLE.CSS  — AutoMarket
+   ============================================================ */
+
+/* RESET & BASE */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
     margin: 0;
     padding: 0;
-    background-color: #f9fafb;
-    color: #333;
+    color: #212529;
 }
 
-header {
+h1, h2, h3, h4 { margin: 0 0 12px 0; line-height: 1.2; }
+
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   CABEÇALHO
+   ============================================================ */
+.cabecalho {
     background-color: #2d6cdf;
-    padding: 5px;
-    color: white;
-    text-align: center;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-nav a {
-    color: white;
-    margin: 0 10px;
-    text-decoration: none;
-    font-weight: bold;
+.cabecalho .logo {
+    font-size: 1.4em;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 1px;
+    white-space: nowrap;
 }
 
-nav a:hover {
-    text-decoration: underline;
-}
+.busca-form { display: flex; }
 
-.container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 15px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-button, input[type="submit"] {
-    background-color: #2d6cdf;
-    color: white;
-    padding: 8px 12px;
+.busca-container input[type="text"] {
+    padding: 8px 18px;
+    width: 280px;
+    border-radius: 25px 0 0 25px;
     border: none;
-    border-radius: 5px;
+    font-family: inherit;
+    font-size: 0.9em;
+    outline: none;
+    transition: width 0.3s;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+}
+
+.busca-container input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
+
+.busca-container input[type="text"]:focus {
+    width: 320px;
+    background: rgba(255,255,255,0.25);
+}
+
+.busca-btn {
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 0 25px 25px 0;
+    color: #fff;
     cursor: pointer;
+    font-size: 0.95em;
+    transition: background 0.2s;
 }
 
-button:hover, input[type="submit"]:hover {
-    background-color: #1c4cad;
+.busca-btn:hover { background: rgba(255,255,255,0.35); }
+
+.header-direita {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-h1, h2 {
-    color: #000000;
+.perfil-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-decoration: none;
 }
 
+.nome-perfil {
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.9em;
+}
+
+.foto-perfil {
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85em;
+    color: #fff;
+    transition: border-color 0.2s;
+}
+
+.perfil-container:hover .foto-perfil { border-color: #fff; }
+.perfil-container:hover .nome-perfil { color: #fff; }
+
+/* ============================================================
+   BOTÕES GLOBAIS
+   ============================================================ */
+.btn-primary {
+    background-color: #2d6cdf;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.88em;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover { background-color: #2460c8; }
+.btn-primary.small { padding: 6px 10px; font-size: 0.82em; }
+.btn-primary.outline {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+}
+.btn-primary.outline:hover { background: rgba(255,255,255,0.1); }
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.88em;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover { background-color: #c82333; }
+
+.btn-secondary {
+    background-color: #fff;
+    color: #495057;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.88em;
+    font-weight: 600;
+    transition: background 0.2s, border-color 0.2s;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn-secondary:hover { background-color: #f4f7f6; border-color: #adb5bd; }
+
+/* ============================================================
+   LAYOUT PRINCIPAL (sidebar + main)
+   ============================================================ */
+.container-principal {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 24px;
+    padding: 28px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+main { min-width: 0; }
+
+/* ============================================================
+   BARRA LATERAL
+   ============================================================ */
+.barra-lateral {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    border-radius: 12px;
+    height: fit-content;
+    position: sticky;
+    top: 70px;
+}
+
+.barra-lateral h3 {
+    margin-top: 0;
+    font-size: 1em;
+    font-weight: 700;
+    border-bottom: 2px solid #f4f7f6;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    color: #343a40;
+}
+
+/* Filtros de preço */
+.filtro-grupo { margin-bottom: 12px; }
+
+.filtro-grupo label {
+    display: block;
+    font-size: 0.78em;
+    font-weight: 600;
+    color: #868e96;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.filtro-grupo input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.88em;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filtro-grupo input:focus { border-color: #2d6cdf; }
+
+.filtro-acoes { display: flex; gap: 6px; margin-top: 12px; }
+.filtro-acoes .btn-primary, .filtro-acoes .btn-secondary { flex: 1; text-align: center; }
+
+/* Sidebar de ações (ad_detail) */
+.sidebar-acoes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.sidebar-btn {
+    display: block;
+    text-align: center;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+    color: #495057;
+    font-size: 0.84em;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar-btn:hover { background-color: #f4f7f6; border-color: #adb5bd; }
+
+.sidebar-btn.btn-primary {
+    background-color: #2d6cdf;
+    color: #fff;
+    border-color: #2d6cdf;
+}
+
+.sidebar-btn.btn-primary:hover { background-color: #2460c8; }
+
+.sidebar-btn.btn-danger {
+    background-color: #fff;
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.sidebar-btn.btn-danger:hover { background-color: #dc3545; color: #fff; }
+
+.sidebar-info-box {
+    background-color: #f4f7f6;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 4px;
+}
+
+.sidebar-info-label {
+    font-size: 0.72em;
+    color: #868e96;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.sidebar-info-value {
+    font-size: 0.88em;
+    color: #343a40;
+    font-weight: 700;
+    margin-top: 2px;
+    margin-bottom: 8px;
+}
+
+/* ============================================================
+   GRADE DE ANÚNCIOS (index)
+   ============================================================ */
+.grade-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.grade-topo h2 { margin: 0; font-size: 1.1em; color: #343a40; }
+
+.grid-anuncios {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.card-veiculo {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-veiculo:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.imagem-veiculo {
+    background-color: #f1f3f5;
+    height: 160px;
+    overflow: hidden;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.imagem-veiculo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+}
+
+.card-veiculo:hover .imagem-veiculo img { transform: scale(1.04); }
+
+.info-veiculo {
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.dados-principais { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+
+.card-body-title {
+    font-weight: 700;
+    color: #212529;
+    font-size: 0.92em;
+    line-height: 1.3;
+}
+
+.card-body-title:hover { color: #2d6cdf; }
+
+.card-body-sub {
+    color: #6c757d;
+    font-size: 0.8em;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.localizacao {
+    display: flex;
+    align-items: flex-start;
+    border-left: 2px solid #f1f3f5;
+    padding-left: 12px;
+    margin-left: 10px;
+    color: #2d6cdf;
+    font-size: 0.82em;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.sem-anuncios {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #868e96;
+    font-size: 0.95em;
+}
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.breadcrumb {
+    font-size: 0.82em;
+    color: #868e96;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.breadcrumb a { color: #2d6cdf; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { opacity: 0.4; }
+
+/* ============================================================
+   PÁGINA DE DETALHE DO ANÚNCIO
+   ============================================================ */
+.detalhe-titulo {
+    font-size: 1.4em;
+    font-weight: 800;
+    color: #212529;
+    margin: 0 0 4px 0;
+}
+
+.detalhe-subtitulo {
+    font-size: 0.85em;
+    color: #868e96;
+    margin: 0 0 18px 0;
+}
+
+.detalhe-layout {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* Galeria */
+.detalhe-galeria { display: flex; flex-direction: column; gap: 10px; }
+
+.detalhe-img-principal {
+    background-color: #f1f3f5;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    height: 300px;
+    overflow: hidden;
+}
+
+.detalhe-img-principal img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.2s;
+}
+
+.detalhe-miniaturas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.detalhe-miniatura {
+    height: 78px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+}
+
+.detalhe-miniatura img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.detalhe-miniatura:hover { border-color: #80bdff; transform: translateY(-2px); }
+.detalhe-miniatura.ativa { border-color: #2d6cdf; }
+
+/* Sidebar direita */
+.detalhe-sidebar { display: flex; flex-direction: column; gap: 14px; }
+
+/* Card genérico */
+.detalhe-card {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+.detalhe-card:last-child { margin-bottom: 0; }
+
+.detalhe-card-titulo {
+    font-size: 1em;
+    font-weight: 700;
+    color: #343a40;
+    border-bottom: 2px solid #f4f7f6;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+}
+
+/* Preço */
+.detalhe-preco-label {
+    font-size: 0.75em;
+    color: #868e96;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 4px;
+}
+
+.detalhe-preco-valor {
+    font-size: 1.6em;
+    font-weight: 800;
+    color: #212529;
+    margin-bottom: 2px;
+}
+
+.detalhe-divider {
+    border: none;
+    border-top: 1px solid #f1f3f5;
+    margin: 12px 0;
+}
+
+.detalhe-spec-linha {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 0.83em;
+}
+
+.detalhe-spec-key { color: #868e96; }
+
+.detalhe-spec-val { color: #343a40; font-weight: 600; }
+
+/* Vendedor */
+.detalhe-vendedor-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.detalhe-vendedor-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #2d6cdf;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1em;
+    flex-shrink: 0;
+}
+
+.detalhe-vendedor-nome { font-weight: 700; color: #343a40; font-size: 0.9em; }
+.detalhe-vendedor-tag { font-size: 0.75em; color: #868e96; }
+
+/* Botões de contato */
+.detalhe-btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 11px;
+    font-family: inherit;
+    font-size: 0.86em;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 8px;
+    transition: background-color 0.2s, transform 0.15s;
+}
+
+.detalhe-btn-whatsapp:hover { background-color: #218838; transform: translateY(-1px); }
+
+.detalhe-btn-mensagem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: #fff;
+    color: #2d6cdf;
+    border: 1px solid #2d6cdf;
+    border-radius: 25px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 0.86em;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+.detalhe-btn-mensagem:hover { background-color: #2d6cdf; color: #fff; }
+
+/* Descrição */
+.detalhe-descricao-texto {
+    font-size: 0.88em;
+    color: #495057;
+    line-height: 1.75;
+    margin: 0;
+    white-space: pre-line;
+}
+
+/* ============================================================
+   FORMULÁRIOS (criar / editar anúncio)
+   ============================================================ */
+.form-card {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 28px;
+    max-width: 680px;
+}
+
+.form-titulo {
+    font-size: 1.2em;
+    font-weight: 800;
+    color: #212529;
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f4f7f6;
+}
+
+.form-grupo { margin-bottom: 16px; }
+
+.form-grupo label {
+    display: block;
+    font-size: 0.82em;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.form-grupo input[type="text"],
+.form-grupo input[type="number"],
+.form-grupo input[type="url"],
+.form-grupo textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9em;
+    color: #212529;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+}
+
+.form-grupo input:focus,
+.form-grupo textarea:focus {
+    border-color: #2d6cdf;
+    box-shadow: 0 0 0 3px rgba(45,108,223,0.12);
+}
+
+.form-grupo textarea { resize: vertical; min-height: 110px; }
+
+.form-grupo .hint {
+    font-size: 0.75em;
+    color: #868e96;
+    margin-top: 4px;
+}
+
+.form-acoes {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.form-erro {
+    background: #fff5f5;
+    border: 1px solid #f5c2c7;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85em;
+    color: #842029;
+    margin-bottom: 16px;
+}
+
+/* ============================================================
+   MEUS ANÚNCIOS (seller_ads)
+   ============================================================ */
+.meus-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.meus-topo h2 { margin: 0; font-size: 1.1em; }
+
+.card-meu-anuncio {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s;
+}
+
+.card-meu-anuncio:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.09); }
+
+.card-meu-anuncio .imagem-veiculo { height: 140px; }
+
+.card-meu-info {
+    padding: 12px 14px;
+    flex: 1;
+}
+
+.card-meu-titulo {
+    font-weight: 700;
+    font-size: 0.92em;
+    color: #212529;
+    margin-bottom: 3px;
+}
+
+.card-meu-titulo:hover { color: #2d6cdf; }
+
+.card-meu-preco {
+    font-weight: 700;
+    font-size: 1em;
+    color: #2d6cdf;
+    margin-bottom: 4px;
+}
+
+.card-meu-data { font-size: 0.76em; color: #adb5bd; }
+
+.card-meu-acoes {
+    padding: 10px 14px;
+    border-top: 1px solid #f1f3f5;
+    display: flex;
+    gap: 6px;
+}
+
+.nao-logado {
+    text-align: center;
+    padding: 60px 20px;
+    color: #868e96;
+}
+
+/* ============================================================
+   MENSAGENS DO DJANGO
+   ============================================================ */
+.messages-container { padding: 0 24px; max-width: 1200px; margin: 12px auto 0; }
+
+.msg {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.88em;
+    margin-bottom: 8px;
+}
+
+.msg-success { background: #d1e7dd; color: #0a3622; border: 1px solid #a3cfbb; }
+.msg-error   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+.msg-info    { background: #cff4fc; color: #0a4f5e; border: 1px solid #9eeaf9; }
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+@media (max-width: 900px) {
+    .container-principal { grid-template-columns: 1fr; }
+    .barra-lateral { position: static; }
+    .detalhe-layout { grid-template-columns: 1fr; }
+    .detalhe-sidebar { flex-direction: row; flex-wrap: wrap; }
+    .detalhe-sidebar .detalhe-card { flex: 1; min-width: 200px; }
+}
+
+@media (max-width: 600px) {
+    .cabecalho { gap: 8px; padding: 10px 14px; }
+    .busca-container input[type="text"] { width: 140px; }
+    .container-principal { padding: 16px 14px; }
+    .grid-anuncios { grid-template-columns: 1fr; }
+    .form-card { padding: 18px; }
+}

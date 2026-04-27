@@ -1,21 +1,69 @@
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-    <title>Exemplo StackOverflow</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoMarket{% endblock %} — AutoMarket</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header>
-        <h1>Fórum MyStackOverflow</h1>
-        <nav>
-            <a href="{% url 'forum:index' %}">Home</a> | 
-            <a href="{% url 'forum:inserir_pergunta' %}">Criar pergunta</a>
-        </nav>
+
+    <header class="cabecalho">
+        <a href="{% url 'forum:index' %}" class="logo">Auto<span style="color:#fff; opacity:0.75;">Market</span></a>
+
+        <form class="busca-form" method="get" action="{% url 'forum:index' %}">
+            <div class="busca-container">
+                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar veículo...">
+            </div>
+            <button class="busca-btn" type="submit">🔍</button>
+        </form>
+
+        <div class="header-direita">
+            <a href="{% url 'forum:ad_create' %}" class="btn-primary" style="white-space:nowrap; font-size:0.82em;">+ Criar anúncio</a>
+            <a href="{% url 'forum:seller_ads' %}" class="perfil-container">
+                <span class="nome-perfil">Meus anúncios</span>
+                <div class="foto-perfil">👤</div>
+            </a>
+        </div>
     </header>
 
-    <main class="container">
-        {% block content %}
-        {% endblock %}
-    </main>
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="msg msg-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="container-principal">
+        <aside class="barra-lateral">
+            {% block sidebar %}
+            <h3>Filtros</h3>
+            <form method="get" action="{% url 'forum:index' %}">
+                {% if request.GET.q %}
+                    <input type="hidden" name="q" value="{{ request.GET.q }}">
+                {% endif %}
+                <div class="filtro-grupo">
+                    <label>Preço mínimo</label>
+                    <input type="number" step="0.01" name="min_price" value="{{ request.GET.min_price }}" placeholder="R$ 0,00">
+                </div>
+                <div class="filtro-grupo">
+                    <label>Preço máximo</label>
+                    <input type="number" step="0.01" name="max_price" value="{{ request.GET.max_price }}" placeholder="R$ 999.999">
+                </div>
+                <div class="filtro-acoes">
+                    <button class="btn-primary" type="submit">Aplicar</button>
+                    <a href="{% url 'forum:index' %}" class="btn-secondary">Limpar</a>
+                </div>
+            </form>
+            {% endblock %}
+        </aside>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
 </body>
 </html>

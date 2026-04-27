@@ -1,0 +1,126 @@
+{% extends "forum/base.html" %}
+
+{% block title %}{{ ad.titulo }}{% endblock %}
+
+{% block sidebar %}
+<h3>Ações</h3>
+<div class="sidebar-acoes">
+    <a href="{% url 'forum:index' %}" class="sidebar-btn">← Voltar à lista</a>
+    <a href="{% url 'forum:ad_edit' ad.id %}" class="sidebar-btn btn-primary">✎ Editar anúncio</a>
+    <a href="{% url 'forum:ad_create' %}" class="sidebar-btn">+ Criar novo anúncio</a>
+    <form method="post" action="{% url 'forum:ad_delete' ad.id %}" onsubmit="return confirm('Tem certeza que deseja excluir este anúncio?');">
+        {% csrf_token %}
+        <button type="submit" class="sidebar-btn btn-danger">🗑 Excluir anúncio</button>
+    </form>
+</div>
+
+<div class="sidebar-info-box">
+    <div class="sidebar-info-label">Publicado em</div>
+    <div class="sidebar-info-value">{{ ad.data_criacao|date:"d/m/Y" }}</div>
+    <div class="sidebar-info-label">Código</div>
+    <div class="sidebar-info-value">#{{ ad.id }}</div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb">
+    <a href="{% url 'forum:index' %}">Início</a>
+    <span>/</span>
+    {{ ad.titulo }}
+</nav>
+
+<!-- Título -->
+<h1 class="detalhe-titulo">{{ ad.titulo }}</h1>
+<p class="detalhe-subtitulo">
+    Vendedor: <strong>{{ ad.vendedor }}</strong>
+    &nbsp;·&nbsp;
+    Publicado em {{ ad.data_criacao|date:"d/m/Y" }}
+</p>
+
+<!-- Grid galeria + sidebar direita -->
+<div class="detalhe-layout">
+
+    <!-- GALERIA -->
+    <div class="detalhe-galeria">
+        <div class="detalhe-img-principal">
+            {% if ad.imagem_url %}
+                <img src="{{ ad.imagem_url }}" alt="{{ ad.titulo }}" id="foto-principal">
+            {% else %}
+                <img src="https://picsum.photos/seed/ad{{ ad.id }}/1000/600" alt="{{ ad.titulo }}" id="foto-principal">
+            {% endif %}
+        </div>
+        <div class="detalhe-miniaturas">
+            {% for n in "123" %}
+            <div class="detalhe-miniatura {% if forloop.first %}ativa{% endif %}"
+                 onclick="trocarFoto(this, '{% if ad.imagem_url %}{{ ad.imagem_url }}{% else %}https://picsum.photos/seed/{{ ad.id }}{{ forloop.counter }}/800/600{% endif %}')">
+                {% if ad.imagem_url %}
+                    <img src="{{ ad.imagem_url }}" alt="foto {{ forloop.counter }}">
+                {% else %}
+                    <img src="https://picsum.photos/seed/{{ ad.id }}{{ forloop.counter }}/800/600" alt="foto {{ forloop.counter }}">
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- SIDEBAR DIREITA -->
+    <div class="detalhe-sidebar">
+
+        <!-- Card Preço -->
+        <div class="detalhe-card">
+            <div class="detalhe-preco-label">Preço</div>
+            <div class="detalhe-preco-valor">R$ {{ ad.preco }}</div>
+            <hr class="detalhe-divider">
+            <div class="detalhe-spec-linha">
+                <span class="detalhe-spec-key">Vendedor</span>
+                <span class="detalhe-spec-val">{{ ad.vendedor }}</span>
+            </div>
+            <div class="detalhe-spec-linha">
+                <span class="detalhe-spec-key">Código</span>
+                <span class="detalhe-spec-val">#{{ ad.id }}</span>
+            </div>
+            <div class="detalhe-spec-linha">
+                <span class="detalhe-spec-key">Publicado</span>
+                <span class="detalhe-spec-val">{{ ad.data_criacao|date:"d/m/Y" }}</span>
+            </div>
+        </div>
+
+        <!-- Card Vendedor -->
+        <div class="detalhe-card">
+            <div class="detalhe-vendedor-row">
+                <div class="detalhe-vendedor-avatar">{{ ad.vendedor|first|upper }}</div>
+                <div>
+                    <div class="detalhe-vendedor-nome">{{ ad.vendedor }}</div>
+                    <div class="detalhe-vendedor-tag">Vendedor verificado</div>
+                </div>
+            </div>
+            <button class="detalhe-btn-whatsapp"
+                    onclick="window.open('https://wa.me/?text=Olá! Tenho interesse no anúncio: {{ ad.titulo }} — R$ {{ ad.preco }}', '_blank')">
+                📱 Falar com o Vendedor
+            </button>
+            <button class="detalhe-btn-mensagem"
+                    onclick="alert('Funcionalidade de mensagem em breve!')">
+                ✉ Enviar mensagem
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Descrição -->
+<div class="detalhe-card">
+    <h3 class="detalhe-card-titulo">Descrição do anúncio</h3>
+    <p class="detalhe-descricao-texto">{{ ad.descricao }}</p>
+</div>
+
+<script>
+function trocarFoto(el, url) {
+    document.getElementById('foto-principal').src = url;
+    document.querySelectorAll('.detalhe-miniatura').forEach(m => m.classList.remove('ativa'));
+    el.classList.add('ativa');
+}
+</script>
+
+{% endblock %}

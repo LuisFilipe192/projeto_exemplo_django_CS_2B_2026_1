@@ -1,0 +1,62 @@
+{% extends "forum/base.html" %}
+
+{% block title %}Criar Anúncio{% endblock %}
+
+{% block sidebar %}
+<h3>Dicas</h3>
+<div style="font-size:0.82em; color:#495057; line-height:1.7;">
+    <p>📸 Use uma URL de imagem real para melhor resultado.</p>
+    <p>💰 Informe o preço sem pontos ou vírgulas (ex: 12500).</p>
+    <p>📝 Uma boa descrição aumenta as chances de venda!</p>
+</div>
+<hr style="border-color:#f1f3f5; margin:16px 0;">
+<a href="{% url 'forum:index' %}" class="btn-secondary" style="display:block; text-align:center;">← Voltar</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-card">
+    <div class="form-titulo">📢 Criar novo anúncio</div>
+
+    {% if erro %}
+    <div class="form-erro">{{ erro }}</div>
+    {% endif %}
+
+    <form method="post" action="{% url 'forum:ad_create' %}">
+        {% csrf_token %}
+
+        <div class="form-grupo">
+            <label for="titulo">Título do anúncio *</label>
+            <input type="text" id="titulo" name="titulo" required placeholder="Ex: Honda Civic 2022 Touring">
+        </div>
+
+        <div class="form-grupo">
+            <label for="vendedor">Seu nome / vendedor *</label>
+            <input type="text" id="vendedor" name="vendedor" required placeholder="Ex: João Silva">
+        </div>
+
+        <div class="form-grupo">
+            <label for="preco">Preço (R$)</label>
+            <input type="number" id="preco" name="preco" step="0.01" min="0" placeholder="Ex: 45000.00" style="max-width:220px;">
+        </div>
+
+        <div class="form-grupo">
+            <label for="imagem_url">URL da imagem</label>
+            <input type="url" id="imagem_url" name="imagem_url" placeholder="https://...">
+            <div class="hint">Cole o link direto de uma imagem (.jpg, .png etc.). Deixe em branco para usar imagem padrão.</div>
+        </div>
+
+        <div class="form-grupo">
+            <label for="descricao">Descrição</label>
+            <textarea id="descricao" name="descricao" rows="5" placeholder="Descreva o produto: estado, características, motivo da venda..."></textarea>
+        </div>
+
+        <div class="form-acoes">
+            <input class="btn-primary" type="submit" value="✔ Publicar anúncio">
+            <button class="btn-primary" style="background:#6c757d; border-color:#6c757d;" type="submit" name="next" value="novo">+ Salvar e criar outro</button>
+            <a href="{% url 'forum:index' %}" class="btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

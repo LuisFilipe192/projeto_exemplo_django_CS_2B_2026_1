@@ -1,86 +1,110 @@
-from django.shortcuts import render
-
-from django.http import HttpResponse, Http404
-from .models import Pergunta, Resposta
-from django.views import View
-from django.utils import timezone
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
+from django.http import Http404
 from django.urls import reverse
+from django.views import View
+from .models import Anuncio
+
 
 class MainView(View):
     def get(self, request):
-        lista_ultimas_questoes = Pergunta.objects.order_by("-data_criacao")
-        contexto = {'perguntas' : lista_ultimas_questoes}
+        anuncios = Anuncio.objects.order_by("-data_criacao")
+        q         = request.GET.get('q', '').strip()
+        min_price = request.GET.get('min_price', '').strip()
+        max_price = request.GET.get('max_price', '').strip()
+        try:
+            if q:
+                anuncios = anuncios.filter(titulo__icontains=q)
+            if min_price:
+                anuncios = anuncios.filter(preco__gte=min_price)
+            if max_price:
+                anuncios = anuncios.filter(preco__lte=max_price)
+        except Exception:
+            pass
+        contexto = {
+            'anuncios': anuncios,
+            'q': q,
+            'min_price': min_price,
+            'max_price': max_price,
+        }
         return render(request, 'forum/index.html', contexto)
 
-class PerguntaView(View):
-    def get(self, request, pergunta_id):
-        try:
-            pergunta = Pergunta.objects.get(pk=pergunta_id)
-        except Pergunta.DoesNotExist:
-            raise Http404("Pergunta inexistente")
-        contexto = {'pergunta' : pergunta}
-        return render(request, 'forum/detalhe.html', contexto)
 
-class VotoView(View):
-    def get(self, request, resposta_id):
+class AdDetailView(View):
+    def get(self, request, ad_id):
         try:
-            resposta = Resposta.objects.get(pk=resposta_id)
-        except Resposta.DoesNotExist:
-            raise Http404("Resposta inexistente")
-        return HttpResponse(str(resposta) + "; votos: " + str(resposta.votos))
+            ad = Anuncio.objects.get(pk=ad_id)
+        except Anuncio.DoesNotExist:
+            raise Http404("Anúncio inexistente")
+        return render(request, 'forum/ad_detail.html', {'ad': ad})
 
-    def post(self, request, resposta_id):
-        try:
-            resposta = Resposta.objects.get(pk=resposta_id)
-        except Resposta.DoesNotExist:
-            raise Http404("Resposta inexistente")
-        resposta.votos += 1
-        resposta.save()
-        return redirect(reverse('forum:detalhe', args=[resposta.pergunta.id]))
 
-class InserirPerguntaView(View):
+class CreateAdView(View):
     def get(self, request):
-        return render(request, 'forum/inserir_pergunta.html')
+        return render(request, 'forum/create_ad.html')
 
     def post(self, request):
-        if request.user.is_authenticated:
-            usuario = request.user.username
-        else:
-            usuario = 'anônimo'
-        titulo = request.POST.get('titulo')
-        detalhe = request.POST.get('detalhe')
-        tentativa = request.POST.get('tentativa')
-        data_criacao = timezone.now()
-        
-        pergunta = Pergunta(titulo=titulo, detalhe=detalhe, tentativa=tentativa, data_criacao=data_criacao, usuario=usuario)
-        pergunta.save()
-
-        return redirect(reverse('forum:detalhe', args=[pergunta.id]))
-
-class InserirRespostaView(View):
-    def get(self, request, pergunta_id):
-        try:
-            pergunta = Pergunta.objects.get(pk=pergunta_id)
-        except Pergunta.DoesNotExist:
-            raise Http404("Pergunta inexistente")
-        contexto = {'pergunta' : pergunta}
-        return render(request, 'forum/inserir_resposta.html', contexto)
-
-    def post(self, request, pergunta_id):
-        try:
-            pergunta = Pergunta.objects.get(pk=pergunta_id)
-        except Pergunta.DoesNotExist:
-            raise Http404("Pergunta inexistente")
+        titulo     = request.POST.get('titulo', '').strip()
+        descricao  = request.POST.get('descricao', '').strip()
+        preco      = request.POST.get('preco') or 0
+        imagem_url = request.POST.get('imagem_url', '').strip()
 
         if request.user.is_authenticated:
-            usuario = request.user.username
+            vendedor = request.user.username
         else:
-            usuario = 'anônimo'
-        texto = request.POST.get('texto')
-        data_criacao = timezone.now()
-        
-        pergunta.resposta_set.create(texto=texto, data_criacao=data_criacao, usuario=usuario)
+            vendedor = request.POST.get('vendedor', '').strip() or 'anônimo'
 
-        return redirect(reverse('forum:detalhe', args=[pergunta.id]))
+        if not titulo:
+            return render(request, 'forum/create_ad.html', {'erro': 'O título é obrigatório.'})
 
+        ad = Anuncio(titulo=titulo, descricao=descricao, preco=preco,
+                     imagem_url=imagem_url, vendedor=vendedor)
+        ad.save()
+
+        if request.POST.get('next') == 'novo':
+            return redirect(reverse('forum:ad_create'))
+        return redirect(reverse('forum:ad_detail', args=[ad.id]))
+
+
+class SellerAdsView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            vendedor = request.user.username
+            anuncios = Anuncio.objects.filter(vendedor=vendedor).order_by('-data_criacao')
+        else:
+            vendedor = None
+            anuncios = []
+        return render(request, 'forum/seller_ads.html', {'anuncios': anuncios, 'vendedor': vendedor})
+
+
+class EditAdView(View):
+    def get(self, request, ad_id):
+        try:
+            ad = Anuncio.objects.get(pk=ad_id)
+        except Anuncio.DoesNotExist:
+            raise Http404("Anúncio inexistente")
+        return render(request, 'forum/edit_ad.html', {'ad': ad})
+
+    def post(self, request, ad_id):
+        try:
+            ad = Anuncio.objects.get(pk=ad_id)
+        except Anuncio.DoesNotExist:
+            raise Http404("Anúncio inexistente")
+        titulo = request.POST.get('titulo', '').strip()
+        if not titulo:
+            return render(request, 'forum/edit_ad.html', {'ad': ad, 'erro': 'O título é obrigatório.'})
+        ad.titulo     = titulo
+        ad.descricao  = request.POST.get('descricao', '').strip()
+        ad.preco      = request.POST.get('preco') or ad.preco
+        ad.imagem_url = request.POST.get('imagem_url', '').strip()
+        ad.save()
+        return redirect(reverse('forum:ad_detail', args=[ad.id]))
+
+
+class DeleteAdView(View):
+    def post(self, request, ad_id):
+        try:
+            ad = Anuncio.objects.get(pk=ad_id)
+        except Anuncio.DoesNotExist:
+            raise Http404("Anúncio inexistente")
+        ad.delete()
+        return redirect(reverse('forum:index'))

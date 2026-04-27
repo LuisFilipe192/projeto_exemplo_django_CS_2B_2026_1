@@ -5,13 +5,11 @@ app_name = 'forum'
 urlpatterns = [
     # ex: /forum/
     path("", views.MainView.as_view(), name="index"),
-    # ex: /forum/5/
-    path("<int:pergunta_id>/", views.PerguntaView.as_view(), name="detalhe"),
-    # ex: /forum/5/voto/
-    path("<int:resposta_id>/voto/", views.VotoView.as_view(), name="voto"),
-    # ex: /forum/inserir/
-    path("inserir/", views.InserirPerguntaView.as_view(), name="inserir_pergunta"),
-    # ex: /forum/5/resposta/
-    path("<int:pergunta_id>/resposta/",
-         views.InserirRespostaView.as_view(), name="inserir_resposta"),
+    path("ad/<int:ad_id>/", views.AdDetailView.as_view(), name="ad_detail"),
+    path("ad/inserir/", views.CreateAdView.as_view(), name="ad_create"),
+    path("meus-anuncios/", views.SellerAdsView.as_view(), name="seller_ads"),
+    path("ad/<int:ad_id>/editar/", views.EditAdView.as_view(), name="ad_edit"),
+    path("ad/<int:ad_id>/excluir/", views.DeleteAdView.as_view(), name="ad_delete"),
+    
+    
 ]

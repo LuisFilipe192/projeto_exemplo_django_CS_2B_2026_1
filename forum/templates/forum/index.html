@@ -1,21 +1,55 @@
 {% extends "forum/base.html" %}
 
+{% block title %}Início{% endblock %}
+
 {% block content %}
-{% if perguntas %}
-    <h2>Últimas perguntas</h2>
-    <ul>
-    {% for pergunta in perguntas %}
-        <li>
-            <a href="{% url 'forum:detalhe' pergunta.id %}">
-                {{ pergunta.titulo }}
-            </a>
-        </li>
+
+<div class="grade-topo">
+    <h2>
+        {% if q %}
+            Resultados para "{{ q }}"
+        {% else %}
+            Últimos anúncios
+        {% endif %}
+        <span style="font-weight:400; font-size:0.75em; color:#868e96; margin-left:8px;">{{ anuncios|length }} encontrado{{ anuncios|length|pluralize:"s" }}</span>
+    </h2>
+    <a href="{% url 'forum:ad_create' %}" class="btn-primary">+ Criar anúncio</a>
+</div>
+
+<div class="grid-anuncios">
+    {% for ad in anuncios %}
+    {% url 'forum:ad_detail' ad.id as ad_url %}
+    <div class="card-veiculo" onclick="window.location.href = '{{ ad_url }}';">
+        <div class="imagem-veiculo">
+            {% if ad.imagem_url %}
+                <img src="{{ ad.imagem_url }}" alt="{{ ad.titulo }}">
+            {% else %}
+                <img src="https://picsum.photos/seed/{{ ad.id }}/800/400" alt="{{ ad.titulo }}">
+            {% endif %}
+        </div>
+        <div class="info-veiculo">
+            <div class="dados-principais">
+                <a href="{% url 'forum:ad_detail' ad.id %}">
+                    <div class="card-body-title">{{ ad.titulo }}</div>
+                </a>
+                <div class="card-body-sub">{{ ad.descricao|truncatechars:80 }}</div>
+                <div style="font-size:0.75em; color:#adb5bd; margin-top:4px;">{{ ad.vendedor }} · {{ ad.data_criacao|date:"d/m/Y" }}</div>
+            </div>
+            <div class="localizacao">R$&nbsp;{{ ad.preco }}</div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="sem-anuncios">
+        <div style="font-size:2em; margin-bottom:10px;">🔍</div>
+        {% if q %}
+            Nenhum anúncio encontrado para "{{ q }}".<br>
+            <a href="{% url 'forum:index' %}" style="color:#2d6cdf;">Limpar busca</a>
+        {% else %}
+            Nenhum anúncio cadastrado ainda.<br>
+            <a href="{% url 'forum:ad_create' %}" style="color:#2d6cdf;">Criar o primeiro anúncio</a>
+        {% endif %}
+    </div>
     {% endfor %}
-    </ul>
-{% else %}
-    <p>Nenhuma pergunta disponível.</p>
-{% endif %}
-<a href="{% url 'forum:inserir_pergunta' %}">
-    <button>Nova pergunta</button>
-</a>
+</div>
+
 {% endblock %}

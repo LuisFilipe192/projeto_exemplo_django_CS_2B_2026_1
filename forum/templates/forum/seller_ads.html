@@ -1,0 +1,77 @@
+{% extends "forum/base.html" %}
+
+{% block title %}Meus Anúncios{% endblock %}
+
+{% block sidebar %}
+<h3>Minha conta</h3>
+<div class="sidebar-acoes">
+    <a href="{% url 'forum:ad_create' %}" class="sidebar-btn btn-primary">+ Criar novo anúncio</a>
+    <a href="{% url 'forum:index' %}" class="sidebar-btn">🏠 Ver todos os anúncios</a>
+</div>
+{% if vendedor %}
+<div class="sidebar-info-box">
+    <div class="sidebar-info-label">Logado como</div>
+    <div class="sidebar-info-value">{{ vendedor }}</div>
+    <div class="sidebar-info-label">Total de anúncios</div>
+    <div class="sidebar-info-value">{{ anuncios|length }}</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="meus-topo">
+    <h2>
+        Meus Anúncios
+        {% if vendedor %}<span style="font-weight:400; color:#868e96;"> — {{ vendedor }}</span>{% endif %}
+    </h2>
+    <a href="{% url 'forum:ad_create' %}" class="btn-primary">+ Criar anúncio</a>
+</div>
+
+{% if not vendedor %}
+<div class="nao-logado">
+    <div style="font-size:2.5em; margin-bottom:12px;">🔒</div>
+    <strong>Você não está logado.</strong><br>
+    Entre para ver e gerenciar seus anúncios.
+</div>
+
+{% else %}
+
+<div class="grid-anuncios">
+    {% for ad in anuncios %}
+    <div class="card-meu-anuncio">
+        <div class="imagem-veiculo">
+            {% if ad.imagem_url %}
+                <img src="{{ ad.imagem_url }}" alt="{{ ad.titulo }}">
+            {% else %}
+                <img src="https://picsum.photos/seed/{{ ad.id }}/800/400" alt="{{ ad.titulo }}">
+            {% endif %}
+        </div>
+        <div class="card-meu-info">
+            <a href="{% url 'forum:ad_detail' ad.id %}">
+                <div class="card-meu-titulo">{{ ad.titulo }}</div>
+            </a>
+            <div class="card-meu-preco">R$ {{ ad.preco }}</div>
+            <div class="card-meu-data">Publicado em {{ ad.data_criacao|date:"d/m/Y" }}</div>
+        </div>
+        <div class="card-meu-acoes">
+            <a href="{% url 'forum:ad_detail' ad.id %}" class="btn-secondary" style="font-size:0.8em; padding:6px 10px;">👁 Ver</a>
+            <a href="{% url 'forum:ad_edit' ad.id %}" class="btn-primary" style="font-size:0.8em; padding:6px 10px;">✎ Editar</a>
+            <form method="post" action="{% url 'forum:ad_delete' ad.id %}" style="display:inline;" onsubmit="return confirm('Excluir este anúncio?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger" style="font-size:0.8em; padding:6px 10px;">🗑</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="sem-anuncios">
+        <div style="font-size:2em; margin-bottom:10px;">📭</div>
+        Você ainda não tem anúncios.<br>
+        <a href="{% url 'forum:ad_create' %}" style="color:#2d6cdf;">Criar primeiro anúncio</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endif %}
+
+{% endblock %}
