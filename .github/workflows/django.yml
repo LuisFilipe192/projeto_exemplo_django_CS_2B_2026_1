@@ -1,0 +1,40 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      selenium:
+        image: selenium/standalone-chrome
+        ports:
+          - 4444:4444
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install selenium
+    - name: Run migrations
+      run: |
+        python manage.py makemigrations
+        python manage.py migrate
+    - name: Run Django server (background)
+      run: |
+        nohup python manage.py runserver 0.0.0.0:8000 &
+        sleep 10
+    - name: Run E2E Selenium tests
+      env:
+        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+      run: |
+        python -m unittest discover -s tests

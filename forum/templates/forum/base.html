@@ -3,67 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AutoMarket{% endblock %} — AutoMarket</title>
+    <title>{% block title %}GarageView{% endblock %} — GarageView</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 
-    <header class="cabecalho">
-        <a href="{% url 'forum:index' %}" class="logo">Auto<span style="color:#fff; opacity:0.75;">Market</span></a>
+<header class="cabecalho">
+    <a href="{% url 'forum:index' %}" class="logo">
+        <span class="g">Garage</span><span class="v">View</span>
+    </a>
 
-        <form class="busca-form" method="get" action="{% url 'forum:index' %}">
-            <div class="busca-container">
-                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar veículo...">
-            </div>
-            <button class="busca-btn" type="submit">🔍</button>
-        </form>
-
-        <div class="header-direita">
-            <a href="{% url 'forum:ad_create' %}" class="btn-primary" style="white-space:nowrap; font-size:0.82em;">+ Criar anúncio</a>
-            <a href="{% url 'forum:seller_ads' %}" class="perfil-container">
-                <span class="nome-perfil">Meus anúncios</span>
-                <div class="foto-perfil">👤</div>
-            </a>
+    <form class="busca-form" method="get" action="{% url 'forum:index' %}">
+        <div class="busca-container">
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Buscar anúncio ou descrição...">
         </div>
-    </header>
+        <button class="busca-btn" type="submit">🔍</button>
+    </form>
 
-    {% if messages %}
-    <div class="messages-container">
-        {% for message in messages %}
-        <div class="msg msg-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
+    <div class="header-direita">
+        <a href="{% url 'forum:ad_create' %}" class="btn-primary" style="white-space:nowrap; font-size:.82em;">+ Criar anúncio</a>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'forum:perfil' %}" class="perfil-container">
+            <span class="nome-perfil">{{ request.user.username }}</span>
+            <div class="foto-perfil">{{ request.user.username|first|upper }}</div>
+        </a>
+        {% else %}
+        <a href="{% url 'forum:login' %}" class="btn-secondary" style="white-space:nowrap; font-size:.82em;">Entrar</a>
+        <a href="{% url 'forum:register' %}" class="btn-primary" style="white-space:nowrap; font-size:.82em;">Cadastrar</a>
+        {% endif %}
     </div>
-    {% endif %}
+</header>
 
-    <div class="container-principal">
-        <aside class="barra-lateral">
-            {% block sidebar %}
-            <h3>Filtros</h3>
-            <form method="get" action="{% url 'forum:index' %}">
-                {% if request.GET.q %}
-                    <input type="hidden" name="q" value="{{ request.GET.q }}">
-                {% endif %}
-                <div class="filtro-grupo">
-                    <label>Preço mínimo</label>
-                    <input type="number" step="0.01" name="min_price" value="{{ request.GET.min_price }}" placeholder="R$ 0,00">
-                </div>
-                <div class="filtro-grupo">
-                    <label>Preço máximo</label>
-                    <input type="number" step="0.01" name="max_price" value="{{ request.GET.max_price }}" placeholder="R$ 999.999">
-                </div>
-                <div class="filtro-acoes">
-                    <button class="btn-primary" type="submit">Aplicar</button>
-                    <a href="{% url 'forum:index' %}" class="btn-secondary">Limpar</a>
-                </div>
-            </form>
-            {% endblock %}
-        </aside>
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="msg msg-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
 
-        <main>
-            {% block content %}{% endblock %}
-        </main>
+<div class="container-principal">
+    <aside class="barra-lateral">
+        {% block sidebar %}
+        <h3>Filtros</h3>
+        <form method="get" action="{% url 'forum:index' %}">
+            {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+            <div class="filtro-grupo">
+                <label>Preço mínimo</label>
+                <input type="number" step="0.01" name="min_price" value="{{ request.GET.min_price|default:'' }}" placeholder="R$ 0,00">
+            </div>
+            <div class="filtro-grupo">
+                <label>Preço máximo</label>
+                <input type="number" step="0.01" name="max_price" value="{{ request.GET.max_price|default:'' }}" placeholder="R$ 999.999">
+            </div>
+            <div class="filtro-acoes">
+                <button class="btn-primary" type="submit">Aplicar</button>
+                <a href="{% url 'forum:index' %}" class="btn-secondary">Limpar</a>
+            </div>
+        </form>
+        {% endblock %}
+    </aside>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<div id="chat-widget">
+
+    
+    <div id="chat-panel">
+
+        
+        <div id="chat-list-view">
+            <div id="chat-list">
+                <div class="chat-empty" id="chat-empty-msg">
+                    💬<br>Nenhuma conversa ainda.<br>
+                    <span style="font-size:.9em;">Acesse um anúncio e clique em<br>"Iniciar conversa" com o vendedor.</span>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="chat-msgs-view">
+            <div id="chat-msgs-header">
+                <button id="chat-back-btn" title="Voltar">◀</button>
+                <div id="chat-msgs-title">Vendedor</div>
+                <button id="chat-del-btn" title="Apagar conversa">🗑</button>
+            </div>
+            <div id="chat-messages"></div>
+            <div id="chat-input-area">
+                <input id="chat-input" type="text" placeholder="Escreva uma mensagem..." maxlength="300" autocomplete="off">
+                <button id="chat-send-btn" title="Enviar">➤</button>
+            </div>
+        </div>
+
     </div>
+
+    
+    <div id="chat-header">
+        <div id="chat-header-title">
+            💬 Mensagens
+            <span id="chat-badge"></span>
+        </div>
+        <button id="chat-toggle-btn" title="Minimizar/Expandir">▲</button>
+    </div>
+</div>
+
+<script>
+
+(function() {
+    const CHAT_USER = '{{ request.user.username|default:"guest"|escapejs }}';
+    const GLOBAL_KEY = 'gv_chats_global';
+    let activeConv = null;
+    let isOpen = false;
+
+    function loadGlobalChats() {
+        try { return JSON.parse(localStorage.getItem(GLOBAL_KEY)) || {}; }
+        catch(e) { return {}; }
+    }
+    function saveGlobalChats(g) {
+        localStorage.setItem(GLOBAL_KEY, JSON.stringify(g));
+    }
+
+    // Return view of chats relevant to current user
+    function loadChats() {
+        const g = loadGlobalChats();
+        const out = {};
+        Object.keys(g).forEach(id => {
+            const c = g[id];
+            if (!c.participants || c.participants.indexOf(CHAT_USER) !== -1) {
+                // expose unread count for current user
+                const unreadMap = c.unread || {};
+                const unread = unreadMap[CHAT_USER] || 0;
+                out[id] = Object.assign({}, c, { unread });
+            }
+        });
+        return out;
+    }
+
+    function timestamp() {
+        return new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    }
+    function convId(vendedor, adId) {
+        return 'conv_' + (adId || 'x') + '_' + vendedor.replace(/\s+/g,'_');
+    }
+
+    const panel      = document.getElementById('chat-panel');
+    const header     = document.getElementById('chat-header');
+    const toggleBtn  = document.getElementById('chat-toggle-btn');
+    const badge      = document.getElementById('chat-badge');
+    const listView   = document.getElementById('chat-list-view');
+    const listEl     = document.getElementById('chat-list');
+    const emptyMsg   = document.getElementById('chat-empty-msg');
+    const msgsView   = document.getElementById('chat-msgs-view');
+    const msgsTitle  = document.getElementById('chat-msgs-title');
+    const msgsEl     = document.getElementById('chat-messages');
+    const inputEl    = document.getElementById('chat-input');
+    const sendBtn    = document.getElementById('chat-send-btn');
+    const backBtn    = document.getElementById('chat-back-btn');
+    const delBtn     = document.getElementById('chat-del-btn');
+
+    function openPanel() {
+        isOpen = true;
+        panel.classList.add('open');
+        toggleBtn.textContent = '▼';
+        showListView();
+    }
+    function closePanel() {
+        isOpen = false;
+        panel.classList.remove('open');
+        toggleBtn.textContent = '▲';
+        activeConv = null;
+    }
+    header.addEventListener('click', () => isOpen ? closePanel() : openPanel());
+
+    function renderList() {
+        const chats = loadChats();
+        const keys  = Object.keys(chats);
+        listEl.innerHTML = '';
+        if (keys.length === 0) {
+            listEl.appendChild(emptyMsg);
+            return;
+        }
+        keys.reverse().forEach(id => {
+            const conv = chats[id];
+            const last = conv.messages[conv.messages.length - 1];
+            const item = document.createElement('div');
+            item.className = 'chat-conv-item' + (id === activeConv ? ' active' : '');
+            item.innerHTML = `
+                <div class="chat-conv-avatar">${conv.vendedor[0].toUpperCase()}</div>
+                <div class="chat-conv-info">
+                    <div class="chat-conv-name">${escHtml(conv.vendedor)}</div>
+                    <div class="chat-conv-last">${last ? escHtml(last.text.substring(0,40)) : 'Nova conversa'}</div>
+                </div>
+                ${conv.unread ? `<div class="chat-conv-unread">${conv.unread}</div>` : ''}
+            `;
+            item.addEventListener('click', () => openConv(id));
+            listEl.appendChild(item);
+        });
+        updateBadge();
+    }
+
+    function openConv(id) {
+        const g = loadGlobalChats();
+        if (!g[id]) return;
+        activeConv = id;
+        // clear unread for current user
+        g[id].unread = g[id].unread || {};
+        g[id].unread[CHAT_USER] = 0;
+        saveGlobalChats(g);
+        msgsTitle.textContent = g[id].vendedor + (g[id].adTitulo ? ' — ' + g[id].adTitulo : '');
+        showMsgsView();
+        renderMessages(g[id].messages || []);
+        updateBadge();
+    }
+
+    function showListView() {
+        listView.style.display  = 'flex';
+        listView.style.flexDirection = 'column';
+        listView.style.flex     = '1';
+        listView.style.overflow = 'hidden';
+        msgsView.classList.remove('active');
+        activeConv = null;
+        renderList();
+    }
+
+    function showMsgsView() {
+        listView.style.display = 'none';
+        msgsView.classList.add('active');
+    }
+
+    function renderMessages(messages) {
+        msgsEl.innerHTML = '';
+        if (!messages || messages.length === 0) {
+            msgsEl.innerHTML = '<div class="chat-sys-msg">Início da conversa</div>';
+        }
+        messages.forEach(m => appendMsgEl(m));
+        msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+
+    function appendMsgEl(m) {
+        if (m.type === 'sys') {
+            const d = document.createElement('div');
+            d.className = 'chat-sys-msg';
+            d.textContent = m.text;
+            msgsEl.appendChild(d);
+        } else {
+            const isMe = (m.from === CHAT_USER);
+            const d = document.createElement('div');
+            d.className = 'chat-msg ' + (isMe ? 'eu' : 'vendedor');
+            d.innerHTML = `${escHtml(m.text)}<div class="chat-msg-meta">${m.time}</div>`;
+            msgsEl.appendChild(d);
+        }
+        msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+
+    function sendMessage() {
+        const text = inputEl.value.trim();
+        if (!text || !activeConv) return;
+        const g = loadGlobalChats();
+        const msg = { from: CHAT_USER, text, time: timestamp() };
+        g[activeConv].messages = g[activeConv].messages || [];
+        g[activeConv].messages.push(msg);
+        // increment unread for other participants
+        g[activeConv].unread = g[activeConv].unread || {};
+        (g[activeConv].participants || []).forEach(p => {
+            if (p !== CHAT_USER) {
+                g[activeConv].unread[p] = (g[activeConv].unread[p] || 0) + 1;
+            }
+        });
+        saveGlobalChats(g);
+        appendMsgEl(msg);
+        inputEl.value = '';
+        updateBadge();
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    inputEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    backBtn.addEventListener('click', () => { activeConv = null; showListView(); });
+    delBtn.addEventListener('click', () => {
+        if (!activeConv) return;
+        if (!confirm('Apagar esta conversa?')) return;
+        const g = loadGlobalChats();
+        delete g[activeConv];
+        saveGlobalChats(g);
+        activeConv = null;
+        showListView();
+    });
+
+    function updateBadge() {
+        const chats = loadChats();
+        const total = Object.values(chats).reduce((s, c) => s + (c.unread || 0), 0);
+        if (total > 0) {
+            badge.textContent = total > 9 ? '9+' : total;
+            badge.classList.add('show');
+        } else {
+            badge.classList.remove('show');
+        }
+    }
+
+    window.ChatWidget = {
+        openChat: function(vendedor, adId, adTitulo) {
+            if (CHAT_USER === 'guest') {
+                alert('Faça login para iniciar e salvar suas conversas.');
+                window.location.href = "{% url 'forum:login' %}?next=" + encodeURIComponent(window.location.pathname);
+                return;
+            }
+            const id     = convId(vendedor, adId);
+            const g      = loadGlobalChats();
+            if (!g[id]) {
+                g[id] = { vendedor, adId, adTitulo, participants: [CHAT_USER, vendedor], messages: [], unread: {} };
+                const sysMsg = { type:'sys', text: 'Conversa iniciada sobre: ' + adTitulo };
+                g[id].messages.push(sysMsg);
+                // mark unread for the other participant
+                g[id].unread = g[id].unread || {};
+                g[id].unread[vendedor] = (g[id].unread[vendedor] || 0) + 1;
+                saveGlobalChats(g);
+            } else {
+                // ensure participants include both
+                g[id].participants = g[id].participants || [];
+                if (g[id].participants.indexOf(CHAT_USER) === -1) g[id].participants.push(CHAT_USER);
+                if (g[id].participants.indexOf(vendedor) === -1) g[id].participants.push(vendedor);
+                saveGlobalChats(g);
+            }
+            openPanel();
+            openConv(id);
+        }
+    };
+
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    updateBadge();
+})();
+</script>
 
 </body>
 </html>

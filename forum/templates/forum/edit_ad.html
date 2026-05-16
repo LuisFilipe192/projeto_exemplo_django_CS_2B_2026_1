@@ -6,10 +6,10 @@
 <h3>Ações</h3>
 <div class="sidebar-acoes">
     <a href="{% url 'forum:ad_detail' ad.id %}" class="sidebar-btn">← Voltar ao anúncio</a>
-    <a href="{% url 'forum:index' %}" class="sidebar-btn">🏠 Página inicial</a>
+    <a href="{% url 'forum:index' %}" class="sidebar-btn">Página inicial</a>
     <form method="post" action="{% url 'forum:ad_delete' ad.id %}" onsubmit="return confirm('Excluir este anúncio definitivamente?');">
         {% csrf_token %}
-        <button type="submit" class="sidebar-btn btn-danger">🗑 Excluir anúncio</button>
+        <button type="submit" class="sidebar-btn btn-danger">Excluir anúncio</button>
     </form>
 </div>
 <div class="sidebar-info-box">
@@ -21,31 +21,36 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="form-card">
-    <div class="form-titulo">✎ Editar anúncio</div>
-
-    {% if erro %}
-    <div class="form-erro">{{ erro }}</div>
-    {% endif %}
+    <div class="form-titulo">Editar anúncio</div>
 
     <form method="post" action="{% url 'forum:ad_edit' ad.id %}">
         {% csrf_token %}
 
         <div class="form-grupo">
-            <label for="titulo">Título do anúncio *</label>
+            <label for="titulo">Nome do veículo *</label>
             <input type="text" id="titulo" name="titulo" value="{{ ad.titulo }}" required>
         </div>
 
-        <div class="form-grupo">
+        <div class="form-row">
+            <div class="form-grupo">
+                <label for="vendedor">Nome do anunciante</label>
+                <input type="text" id="vendedor" name="vendedor" value="{{ ad.vendedor }}">
+            </div>
+            <div class="form-grupo">
+                <label for="contato">WhatsApp / Contato</label>
+                <input type="text" id="contato" name="contato" value="{{ ad.contato }}">
+            </div>
+        </div>
+
+        <div class="form-grupo" style="max-width:260px;">
             <label for="preco">Preço (R$)</label>
-            <input type="number" id="preco" name="preco" step="0.01" min="0" value="{{ ad.preco }}" style="max-width:220px;">
+            <input type="text" id="preco" name="preco" value="{{ ad.preco }}">
         </div>
 
         <div class="form-grupo">
             <label for="imagem_url">URL da imagem</label>
-            <input type="url" id="imagem_url" name="imagem_url" value="{{ ad.imagem_url }}">
-            <div class="hint">Deixe em branco para usar imagem padrão.</div>
+            <input type="text" id="imagem_url" name="imagem_url" value="{{ ad.imagem_url }}">
         </div>
 
         <div class="form-grupo">
@@ -59,5 +64,4 @@
         </div>
     </form>
 </div>
-
 {% endblock %}

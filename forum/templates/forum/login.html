@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GarageView - Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="cabecalho">
+        <a href="{% url 'forum:index' %}" class="logo" style="text-decoration:none; font-weight:700; font-size:1.5rem; letter-spacing:1px; display:flex; align-items:center; gap:0;">
+            <span style="color:#fff;">Garage</span><span style="color:#1a237e; margin-left:2px;">View</span>
+        </a>
+    </header>
+    <div class="container-principal">
+        <aside class="barra-lateral"></aside>
+        <main>
+            <div style="max-width:400px; margin:40px auto;">
+                <h2 style="margin-bottom:24px;">Entrar</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    {% if form.non_field_errors %}
+                        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:10px 14px; margin-bottom:16px; color:#b91c1c; font-size:14px;">
+                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block; margin-bottom:6px; font-weight:500;">Usuário</label>
+                        <input type="text" name="username" value="{{ form.username.value|default:'' }}" style="width:100%; padding:8px 14px; border-radius:6px; border:1px solid #d1d5db;">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block; margin-bottom:6px; font-weight:500;">E-mail</label>
+                        <input type="email" name="email" required value="{{ request.POST.email|default:'' }}" style="width:100%; padding:8px 14px; border-radius:6px; border:1px solid #d1d5db;">
+                    </div>
+                    <div style="margin-bottom:24px;">
+                        <label style="display:block; margin-bottom:6px; font-weight:500;">Senha</label>
+                        <input type="password" name="password" style="width:100%; padding:8px 14px; border-radius:6px; border:1px solid #d1d5db;">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width:100%;">Entrar</button>
+                </form>
+                <p style="text-align:center; margin-top:20px; font-size:14px;">
+                    Não tem conta? <a href="{% url 'forum:register' %}?next={{ request.GET.next }}">Cadastre-se</a>
+                </p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

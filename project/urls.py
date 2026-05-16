@@ -21,6 +21,6 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/forum/')),
-    path('forum/', include('forum.urls')),
+    path('forum/', include(('forum.urls', 'forum'), namespace='forum')),
     path('admin/', admin.site.urls),
 ]

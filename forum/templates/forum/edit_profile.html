@@ -1,0 +1,35 @@
+{% extends "forum/base.html" %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="form-titulo">Editar perfil</div>
+    {% if form_errors %}
+    <div class="form-erro">
+        <ul>
+            {% for err in form_errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'forum:edit_profile' %}">
+        {% csrf_token %}
+        <div class="form-grupo">
+            <label for="username">Nome de usuário</label>
+            <input type="text" id="username" name="username" required value="{% if username %}{{ username }}{% else %}{{ request.user.username }}{% endif %}">
+        </div>
+        <div class="form-grupo">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" value="{% if email %}{{ email }}{% else %}{{ request.user.email }}{% endif %}">
+        </div>
+
+        <div class="form-acoes">
+            <input class="btn-primary" type="submit" value="Salvar alterações">
+            <a href="{% url 'forum:perfil' %}" class="btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

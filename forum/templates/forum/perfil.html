@@ -1,0 +1,58 @@
+{% extends "forum/base.html" %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+<div class="perfil-card">
+    <div class="perfil-avatar">
+        {% if request.user.is_authenticated %}{{ request.user.username|first|upper }}{% else %}U{% endif %}
+    </div>
+    <div class="perfil-nome">
+        {% if request.user.is_authenticated %}{{ request.user.username }}{% else %}João Usuário{% endif %}
+    </div>
+    <div class="perfil-email">
+        {% if request.user.is_authenticated %}{{ request.user.email|default:"sem e-mail cadastrado" }}{% else %}joao@email.com{% endif %}
+    </div>
+
+    <div class="perfil-stats">
+        <div class="perfil-stat">
+            <div class="perfil-stat-num" id="stat-anuncios">—</div>
+            <div class="perfil-stat-label">Anúncios</div>
+        </div>
+        <div class="perfil-stat">
+            <div class="perfil-stat-num" id="stat-conversas">—</div>
+            <div class="perfil-stat-label">Conversas</div>
+        </div>
+    </div>
+
+    <div class="perfil-info">
+        <div class="perfil-info-linha"><strong>Membro desde:</strong> {% if request.user.is_authenticated %}{{ request.user.date_joined|date:"M/Y" }}{% else %}Abril/2026{% endif %}</div>
+        {% if request.user.is_authenticated %}
+        <div class="perfil-info-linha"><strong>Último acesso:</strong> {{ request.user.last_login|date:"d/m/Y H:i"|default:"—" }}</div>
+        {% endif %}
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <a href="{% url 'forum:seller_ads' %}" class="btn-primary">Meus anúncios</a>
+        <a href="{% url 'forum:ad_create' %}" class="btn-secondary">Criar anúncio</a>
+        <a href="{% url 'forum:index' %}" class="btn-secondary">Início</a>
+        <a href="{% url 'forum:edit_profile' %}" class="btn-secondary">Editar perfil</a>
+        <form method="post" action="{% url 'forum:logout' %}" style="display:inline;margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-secondary">Sair</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// preenche estatísticas do localStorage
+(function(){
+    try {
+        const USER = '{{ request.user.username|default:"guest"|escapejs }}';
+        const global = JSON.parse(localStorage.getItem('gv_chats_global')) || {};
+        const keys = Object.keys(global).filter(k => (global[k].participants || []).indexOf(USER) !== -1);
+        document.getElementById('stat-conversas').textContent = keys.length;
+    } catch(e) {}
+})();
+</script>
+{% endblock %}
